@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 
+
 public class ChessMoveTests extends EqualsTestingUtility<ChessMove> {
     public ChessMoveTests() {
         super("ChessMove", "moves");

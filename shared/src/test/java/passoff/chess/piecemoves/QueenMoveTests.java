@@ -4,6 +4,7 @@ import chess.ChessPosition;
 import org.junit.jupiter.api.Test;
 import passoff.chess.TestUtilities;
 
+
 public class QueenMoveTests {
     @Test
     public void queenMoveUntilEdge() {

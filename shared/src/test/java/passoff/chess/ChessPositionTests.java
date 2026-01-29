@@ -5,6 +5,7 @@ import chess.ChessPosition;
 import java.util.Collection;
 import java.util.List;
 
+
 public class ChessPositionTests extends EqualsTestingUtility<ChessPosition> {
     public ChessPositionTests() {
         super("ChessPosition", "positions");
