@@ -10,30 +10,19 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessMove {
-    private ChessPosition startPosition;
-    private ChessPosition endPosition;
-    private PieceType promotionPiece;
-
-
-    public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
-                     ChessPiece.PieceType promotionPiece) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
-        this.promotionPiece = promotionPiece;
-    }
+public record ChessMove(ChessPosition startPosition, ChessPosition endPosition, PieceType promotionPiece) {
 
     /**
      * @return ChessPosition of starting location
      */
-    public ChessPosition getStartPosition() {
+    public ChessPosition startPosition() {
         return startPosition;
     }
 
     /**
      * @return ChessPosition of ending location
      */
-    public ChessPosition getEndPosition() {
+    public ChessPosition endPosition() {
         return endPosition;
     }
 
@@ -43,7 +32,7 @@ public class ChessMove {
      *
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
-    public ChessPiece.PieceType getPromotionPiece() {
+    public PieceType promotionPiece() {
         return promotionPiece;
     }
 
@@ -53,11 +42,11 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(getStartPosition(), chessMove.getStartPosition()) && Objects.equals(getEndPosition(), chessMove.getEndPosition()) && getPromotionPiece() == chessMove.getPromotionPiece();
+        return Objects.equals(startPosition(), chessMove.startPosition()) && Objects.equals(endPosition(), chessMove.endPosition()) && promotionPiece() == chessMove.promotionPiece();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStartPosition(), getEndPosition(), getPromotionPiece());
+        return Objects.hash(startPosition(), endPosition(), promotionPiece());
     }
 }
