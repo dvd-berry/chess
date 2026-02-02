@@ -47,10 +47,10 @@ public class ChessPiece {
         return type;
     }
 
-    private boolean isEmptySquare(ChessBoard board, ChessPosition position) {
+    public boolean isEmptySquare(ChessBoard board, ChessPosition position) {
         return board.getPiece(position) == null;
     }
-    private boolean isCapture(ChessBoard board, ChessPosition position) {
+    public boolean isCapture(ChessBoard board, ChessPosition position) {
         return position != null && !isEmptySquare(board, position) && board.getPiece(position).getTeamColor() != pieceColor;
     }
     private boolean isValidIndex(int val) {
