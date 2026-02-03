@@ -112,6 +112,11 @@ public class ChessBoard {
         ChessPiece piece = this.getPiece((move.startPosition()));
         this.addPiece(move.endPosition(), piece);
         this.addPiece(move.startPosition(), null);
+        if(piece.getPieceType() == PieceType.KING)
+            updateKingPos(move, piece.getTeamColor());
+    }
+    private void updateKingPos(ChessMove move, TeamColor color) {
+        kingPositions[color.ordinal()] = move.endPosition();
     }
     public boolean isInCheck(TeamColor team) {
         for (int i = 1; i <= 8; i++)
