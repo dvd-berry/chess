@@ -4,6 +4,7 @@ import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -14,9 +15,17 @@ import java.util.Objects;
  */
 public class ChessBoard {
     private final ChessPiece[][] board;
+    private ChessPosition[] kingPositions;
 
     public ChessBoard() {
         board = new ChessPiece[8][8];
+        resetBoard();
+    }
+    public ChessBoard(ChessBoard other) {
+        board = new ChessPiece[8][8];
+        for(int i = 0; i < 8; i++)
+            System.arraycopy(other.board[i], 0, this.board[i], 0, 8);
+        System.arraycopy(other.kingPositions, 0, this.kingPositions, 0,2);
     }
 
     /**
@@ -71,6 +80,43 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 8), new ChessPiece(TeamColor.BLACK, PieceType.ROOK));
         for (int i = 1; i <= 8; i++)
             addPiece(new ChessPosition(7, i), new ChessPiece(TeamColor.BLACK, PieceType.PAWN));
+
+        kingPositions[0] = new ChessPosition(1, 5);
+        kingPositions[1] = new ChessPosition(8, 5);
+    }
+
+    public ChessPosition[] getKingPositions(){
+        return kingPositions;
+    }
+    public void setKingPositions(ChessPosition[] kingPositions){
+        this.kingPositions = kingPositions;
+    }
+    public Collection<ChessMove> validMoves(ChessPosition position) {
+
+        return null;
+    }
+    public void makeMove(ChessMove move) {
+
+    }
+    public boolean isInCheck(TeamColor team) {
+        for (int i = 1; i <= 8; i++)
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece current = getPiece(new ChessPosition(i, j));
+                if (current.isCapture(this, getKingPos(team)))
+                    return true;
+            }
+        return false;
+    }
+    private ChessPosition getKingPos(TeamColor color) {
+        return (color == TeamColor.WHITE) ? kingPositions[0] : kingPositions[1];
+    }
+    public boolean isInCheckmate(TeamColor team) {
+
+        return true;
+    }
+    public boolean isInStalemate(TeamColor team) {
+
+        return true;
     }
 
     @Override

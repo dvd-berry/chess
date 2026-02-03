@@ -12,21 +12,15 @@ import java.util.Collection;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
-    private ChessPosition whiteKingPos;
-    private ChessPosition blackKingPos;
+    private ChessPosition[] kingPositions;
 
     public ChessGame() {
         board = new ChessBoard();
-        board.resetBoard();
         turn = TeamColor.WHITE;
-        whiteKingPos = new ChessPosition(1, 5);
-        blackKingPos = new ChessPosition(8, 5);
-
-    }
-
-    private ChessPosition getKingPos(TeamColor color) {
-        return (color == TeamColor.WHITE) ? whiteKingPos : blackKingPos;
-
+        kingPositions = new ChessPosition[2];
+        kingPositions[0] = new ChessPosition(1, 5);
+        kingPositions[1] = new ChessPosition(8, 5);
+        board.setKingPositions(kingPositions);
     }
 
     /**
@@ -65,8 +59,24 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-         Collection<ChessMove> pieceMoves = new ArrayList<ChessMove>();
-         return pieceMoves;
+        return board.validMoves(startPosition);
+        /*
+        ChessBoard duplicate = new ChessBoard(board);
+
+         ChessPiece piece = board.getPiece(startPosition);
+         if(piece == null)
+             return null;
+         Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
+         for(ChessMove move : pieceMoves) {
+             if(move.promotionPiece() != null)
+                 piece = new ChessPiece(turn, move.promotionPiece());
+             duplicate.addPiece(move.endPosition(), piece); // adds new piece
+             duplicate.addPiece(move.startPosition(), null); // clears old position
+
+             //if(duplicate.isInCheck(turn)) // Why are we going through ChessGame and not ChessBoard?
+         }
+
+         return pieceMoves; */
     }
 
     /**
@@ -76,7 +86,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        board.makeMove(move);
     }
 
     /**
@@ -86,13 +96,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        for (int i = 1; i <= 8; i++)
-            for (int j = 1; j <= 8; j++) {
-                ChessPiece current = board.getPiece(new ChessPosition(i, j));
-                if (current.isCapture(board, getKingPos(teamColor)))
-                    return true;
-            }
-        return false;
+        return board.isInCheck(teamColor);
     }
 
     /**
@@ -102,7 +106,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return board.isInCheckmate(teamColor);
     }
 
     /**
@@ -113,7 +117,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return board.isInStalemate(teamColor);
     }
 
     /**
