@@ -15,14 +15,16 @@ import java.util.Objects;
  */
 public class ChessBoard {
     private final ChessPiece[][] board;
-    private ChessPosition[] kingPositions;
+    private final ChessPosition[] kingPositions;
 
     public ChessBoard() {
         board = new ChessPiece[8][8];
+        kingPositions = new ChessPosition[2];
         resetBoard();
     }
     public ChessBoard(ChessBoard other) {
         board = new ChessPiece[8][8];
+        kingPositions = new ChessPosition[2];
         for(int i = 0; i < 8; i++)
             System.arraycopy(other.board[i], 0, this.board[i], 0, 8);
         System.arraycopy(other.kingPositions, 0, this.kingPositions, 0,2);
@@ -89,14 +91,27 @@ public class ChessBoard {
         return kingPositions;
     }
     public void setKingPositions(ChessPosition[] kingPositions){
-        this.kingPositions = kingPositions;
+        System.arraycopy(kingPositions, 0, this.kingPositions, 0, 2);
     }
     public Collection<ChessMove> validMoves(ChessPosition position) {
+        ChessPiece piece = this.getPiece(position);
+        if(piece == null)
+            throw new IllegalArgumentException("This position does not have a piece");
+        Collection<ChessMove> potentialMoves = piece.pieceMoves(this, position);
+        potentialMoves.removeIf(move -> !isValidMove(move)); // removes all invalid moves
 
-        return null;
+        return potentialMoves;
+    }
+    private boolean isValidMove(ChessMove move) {
+        ChessPiece piece = this.getPiece(move.startPosition());
+        ChessBoard duplicate = new ChessBoard(this);
+        duplicate.makeMove(move);
+        return !duplicate.isInCheck(piece.getTeamColor()); // returns false if team that made move finishes in check
     }
     public void makeMove(ChessMove move) {
-
+        ChessPiece piece = this.getPiece((move.startPosition()));
+        this.addPiece(move.endPosition(), piece);
+        this.addPiece(move.startPosition(), null);
     }
     public boolean isInCheck(TeamColor team) {
         for (int i = 1; i <= 8; i++)
