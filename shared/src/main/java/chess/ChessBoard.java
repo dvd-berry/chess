@@ -5,6 +5,7 @@ import chess.ChessGame.TeamColor;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -90,13 +91,16 @@ public class ChessBoard {
     public ChessPosition[] getKingPositions(){
         return kingPositions;
     }
+    private ChessPosition getKingPosition(TeamColor color) {
+        return kingPositions[color.ordinal()];
+    }
     public void setKingPositions(ChessPosition[] kingPositions){
         System.arraycopy(kingPositions, 0, this.kingPositions, 0, 2);
     }
     public Collection<ChessMove> validMoves(ChessPosition position) {
         ChessPiece piece = this.getPiece(position);
         if(piece == null)
-            throw new IllegalArgumentException("This position does not have a piece");
+            return Collections.emptyList();
         Collection<ChessMove> potentialMoves = piece.pieceMoves(this, position);
         potentialMoves.removeIf(move -> !isValidMove(move)); // removes all invalid moves
 
@@ -121,23 +125,40 @@ public class ChessBoard {
     public boolean isInCheck(TeamColor team) {
         for (int i = 1; i <= 8; i++)
             for (int j = 1; j <= 8; j++) {
-                ChessPiece current = getPiece(new ChessPosition(i, j));
-                if (current.isCapture(this, getKingPos(team)))
-                    return true;
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = getPiece(position);
+                if(piece == null || piece.getTeamColor() == team)
+                    continue;
+                for(ChessMove move : piece.pieceMoves(this, position))
+                    if(move.endPosition().equals(getKingPosition(team)))
+                        return true;
             }
         return false;
     }
     private ChessPosition getKingPos(TeamColor color) {
-        return (color == TeamColor.WHITE) ? kingPositions[0] : kingPositions[1];
+        return kingPositions[color.ordinal()];
     }
     public boolean isInCheckmate(TeamColor team) {
-
-        return true;
+        return isInCheck(team) && noLegalMoves(team);
     }
     public boolean isInStalemate(TeamColor team) {
-
+        return !isInCheck(team) && noLegalMoves(team);
+    }
+    private boolean noLegalMoves(TeamColor team) {
+        for(int i = 1; i <=8; i++)
+            for(int j = 1; j <=8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = this.getPiece(position);
+                if(piece == null || piece.getTeamColor() != team)
+                    continue;
+                if(!validMoves(position).isEmpty()) {
+                    return false;
+                }
+            }
         return true;
     }
+
+
 
     @Override
     public boolean equals(Object o) {
