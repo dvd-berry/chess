@@ -106,7 +106,7 @@ public class ChessBoard {
 
         return potentialMoves;
     }
-    private boolean isValidMove(ChessMove move) {
+    public boolean isValidMove(ChessMove move) {
         ChessPiece piece = this.getPiece(move.startPosition());
         ChessBoard duplicate = new ChessBoard(this);
         duplicate.makeMove(move);
@@ -135,9 +135,6 @@ public class ChessBoard {
             }
         return false;
     }
-    private ChessPosition getKingPos(TeamColor color) {
-        return kingPositions[color.ordinal()];
-    }
     public boolean isInCheckmate(TeamColor team) {
         return isInCheck(team) && noLegalMoves(team);
     }
@@ -159,18 +156,17 @@ public class ChessBoard {
     }
 
 
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(board, that.board);
+        return Objects.deepEquals(board, that.board) && Objects.deepEquals(kingPositions, that.kingPositions);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(board);
+        return Objects.hash(Arrays.deepHashCode(board), Arrays.hashCode(kingPositions));
     }
 }

@@ -20,7 +20,7 @@ public class ChessGame {
         kingPositions = new ChessPosition[2];
         kingPositions[0] = new ChessPosition(1, 5);
         kingPositions[1] = new ChessPosition(8, 5);
-        board.setKingPositions(kingPositions);
+        //board.setKingPositions(kingPositions);
     }
 
     /**
@@ -86,7 +86,9 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        board.makeMove(move);
+        if(board.isValidMove(move))
+            board.makeMove(move);
+        else throw new InvalidMoveException();
     }
 
     /**
@@ -126,7 +128,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        this.board = board;
+        this.board = new ChessBoard(board);
     }
 
     /**
