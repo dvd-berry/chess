@@ -21,14 +21,69 @@ public class ChessBoard {
     public ChessBoard() {
         board = new ChessPiece[8][8];
         kingPositions = new ChessPosition[2];
-        resetBoard();
     }
-    public ChessBoard(ChessBoard other) {
-        board = new ChessPiece[8][8];
-        kingPositions = new ChessPosition[2];
+    public void copy(ChessBoard other) {
         for(int i = 0; i < 8; i++)
             System.arraycopy(other.board[i], 0, this.board[i], 0, 8);
         System.arraycopy(other.kingPositions, 0, this.kingPositions, 0,2);
+    }
+    public Collection<ChessMove> validMoves(ChessPosition position) {
+        ChessPiece piece = this.getPiece(position);
+        if(piece == null)
+            return Collections.emptyList();
+        Collection<ChessMove> potentialMoves = piece.pieceMoves(this, position);
+        potentialMoves.removeIf(move -> !isValidMove(move)); // removes all invalid moves
+
+        return potentialMoves;
+    }
+    public boolean isValidMove(ChessMove move) {
+        ChessPiece piece = this.getPiece(move.startPosition());
+        ChessBoard duplicate = new ChessBoard();
+        duplicate.copy(this);
+        duplicate.makeMove(move);
+        return !duplicate.isInCheck(piece.getTeamColor());
+    }
+    private void updateKingPos(ChessMove move, TeamColor color) {
+        kingPositions[color.ordinal()] = move.endPosition();
+    }
+    public void makeMove(ChessMove move) {
+        ChessPiece piece = this.getPiece((move.startPosition()));
+        this.addPiece(move.endPosition(), piece);
+        this.addPiece(move.startPosition(), null);
+        if(piece.getPieceType() == PieceType.KING)
+            updateKingPos(move, piece.getTeamColor());
+    }
+    public boolean isInCheck(TeamColor team) {
+        for (int i = 1; i <= 8; i++)
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = getPiece(position);
+                if(piece == null || piece.getTeamColor() == team)
+                    continue;
+                for(ChessMove move : piece.pieceMoves(this, position))
+                    if(move.endPosition().equals(kingPositions[team.ordinal()]))
+                        return true;
+            }
+        return false;
+    }
+    public boolean isInCheckmate(TeamColor team) {
+        return isInCheck(team) && noLegalMoves(team);
+    }
+    private boolean noLegalMoves(TeamColor team) {
+        for(int i = 1; i <=8; i++)
+            for(int j = 1; j <=8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = this.getPiece(position);
+                if(piece == null || piece.getTeamColor() != team)
+                    continue;
+                if(!validMoves(position).isEmpty()) {
+                    return false;
+                }
+            }
+        return true;
+    }
+    public boolean isInStalemate(TeamColor team) {
+        return !isInCheck(team) && noLegalMoves(team);
     }
 
     /**
@@ -88,85 +143,17 @@ public class ChessBoard {
         kingPositions[1] = new ChessPosition(8, 5);
     }
 
-    public ChessPosition[] getKingPositions(){
-        return kingPositions;
-    }
-    private ChessPosition getKingPosition(TeamColor color) {
-        return kingPositions[color.ordinal()];
-    }
-    public void setKingPositions(ChessPosition[] kingPositions){
-        System.arraycopy(kingPositions, 0, this.kingPositions, 0, 2);
-    }
-    public Collection<ChessMove> validMoves(ChessPosition position) {
-        ChessPiece piece = this.getPiece(position);
-        if(piece == null)
-            return Collections.emptyList();
-        Collection<ChessMove> potentialMoves = piece.pieceMoves(this, position);
-        potentialMoves.removeIf(move -> !isValidMove(move)); // removes all invalid moves
-
-        return potentialMoves;
-    }
-    public boolean isValidMove(ChessMove move) {
-        ChessPiece piece = this.getPiece(move.startPosition());
-        ChessBoard duplicate = new ChessBoard(this);
-        duplicate.makeMove(move);
-        return !duplicate.isInCheck(piece.getTeamColor()); // returns false if team that made move finishes in check
-    }
-    public void makeMove(ChessMove move) {
-        ChessPiece piece = this.getPiece((move.startPosition()));
-        this.addPiece(move.endPosition(), piece);
-        this.addPiece(move.startPosition(), null);
-        if(piece.getPieceType() == PieceType.KING)
-            updateKingPos(move, piece.getTeamColor());
-    }
-    private void updateKingPos(ChessMove move, TeamColor color) {
-        kingPositions[color.ordinal()] = move.endPosition();
-    }
-    public boolean isInCheck(TeamColor team) {
-        for (int i = 1; i <= 8; i++)
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = getPiece(position);
-                if(piece == null || piece.getTeamColor() == team)
-                    continue;
-                for(ChessMove move : piece.pieceMoves(this, position))
-                    if(move.endPosition().equals(getKingPosition(team)))
-                        return true;
-            }
-        return false;
-    }
-    public boolean isInCheckmate(TeamColor team) {
-        return isInCheck(team) && noLegalMoves(team);
-    }
-    public boolean isInStalemate(TeamColor team) {
-        return !isInCheck(team) && noLegalMoves(team);
-    }
-    private boolean noLegalMoves(TeamColor team) {
-        for(int i = 1; i <=8; i++)
-            for(int j = 1; j <=8; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                ChessPiece piece = this.getPiece(position);
-                if(piece == null || piece.getTeamColor() != team)
-                    continue;
-                if(!validMoves(position).isEmpty()) {
-                    return false;
-                }
-            }
-        return true;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(board, that.board) && Objects.deepEquals(kingPositions, that.kingPositions);
+        return Objects.deepEquals(board, that.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(board), Arrays.hashCode(kingPositions));
+        return Arrays.deepHashCode(board);
     }
 }

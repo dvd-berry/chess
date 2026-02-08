@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -12,15 +11,11 @@ import java.util.Collection;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
-    private ChessPosition[] kingPositions;
 
     public ChessGame() {
         board = new ChessBoard();
+        board.resetBoard();
         turn = TeamColor.WHITE;
-        kingPositions = new ChessPosition[2];
-        kingPositions[0] = new ChessPosition(1, 5);
-        kingPositions[1] = new ChessPosition(8, 5);
-        //board.setKingPositions(kingPositions);
     }
 
     /**
@@ -38,8 +33,7 @@ public class ChessGame {
     public void setTeamTurn(TeamColor team) {
         turn = team;
     }
-
-    private void switchTurn() {
+    public void switchTurn() {
         turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
@@ -60,23 +54,6 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         return board.validMoves(startPosition);
-        /*
-        ChessBoard duplicate = new ChessBoard(board);
-
-         ChessPiece piece = board.getPiece(startPosition);
-         if(piece == null)
-             return null;
-         Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
-         for(ChessMove move : pieceMoves) {
-             if(move.promotionPiece() != null)
-                 piece = new ChessPiece(turn, move.promotionPiece());
-             duplicate.addPiece(move.endPosition(), piece); // adds new piece
-             duplicate.addPiece(move.startPosition(), null); // clears old position
-
-             //if(duplicate.isInCheck(turn)) // Why are we going through ChessGame and not ChessBoard?
-         }
-
-         return pieceMoves; */
     }
 
     /**
@@ -86,8 +63,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if(board.isValidMove(move))
+        if(board.isValidMove(move)) {
             board.makeMove(move);
+            switchTurn();
+        }
         else throw new InvalidMoveException();
     }
 
@@ -128,7 +107,8 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        this.board = new ChessBoard(board);
+        this.board = new ChessBoard();
+        this.board.copy(board);
     }
 
     /**
