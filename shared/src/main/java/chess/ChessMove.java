@@ -15,14 +15,14 @@ public record ChessMove(ChessPosition startPosition, ChessPosition endPosition, 
     /**
      * @return ChessPosition of starting location
      */
-    public ChessPosition startPosition() {
+    public ChessPosition getStartPosition() {
         return startPosition;
     }
 
     /**
      * @return ChessPosition of ending location
      */
-    public ChessPosition endPosition() {
+    public ChessPosition getEndPosition() {
         return endPosition;
     }
 

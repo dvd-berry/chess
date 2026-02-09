@@ -16,16 +16,24 @@ import java.util.Objects;
  */
 public class ChessBoard {
     private final ChessPiece[][] board;
-    private final ChessPosition[] kingPositions;
 
     public ChessBoard() {
         board = new ChessPiece[8][8];
-        kingPositions = new ChessPosition[2];
     }
     public void copy(ChessBoard other) {
         for(int i = 0; i < 8; i++)
             System.arraycopy(other.board[i], 0, this.board[i], 0, 8);
-        System.arraycopy(other.kingPositions, 0, this.kingPositions, 0,2);
+    }
+    private ChessPosition getKingPosition(TeamColor color) {
+        for(int i = 1; i <= 8; i++) {
+            for(int j = 1; j<= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = getPiece(position);
+                if(piece != null && piece.getPieceType() == PieceType.KING && piece.getTeamColor() == color)
+                    return position;
+            }
+        }
+        throw new IllegalStateException("There is no king on the board");
     }
     public Collection<ChessMove> validMoves(ChessPosition position) {
         ChessPiece piece = this.getPiece(position);
@@ -43,15 +51,11 @@ public class ChessBoard {
         duplicate.makeMove(move);
         return !duplicate.isInCheck(piece.getTeamColor());
     }
-    private void updateKingPos(ChessMove move, TeamColor color) {
-        kingPositions[color.ordinal()] = move.endPosition();
-    }
+
     public void makeMove(ChessMove move) {
         ChessPiece piece = this.getPiece((move.startPosition()));
         this.addPiece(move.endPosition(), piece);
         this.addPiece(move.startPosition(), null);
-        if(piece.getPieceType() == PieceType.KING)
-            updateKingPos(move, piece.getTeamColor());
     }
     public boolean isInCheck(TeamColor team) {
         for (int i = 1; i <= 8; i++)
@@ -61,7 +65,7 @@ public class ChessBoard {
                 if(piece == null || piece.getTeamColor() == team)
                     continue;
                 for(ChessMove move : piece.pieceMoves(this, position))
-                    if(move.endPosition().equals(kingPositions[team.ordinal()]))
+                    if(move.endPosition().equals(getKingPosition(team)))
                         return true;
             }
         return false;
@@ -138,9 +142,6 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 8), new ChessPiece(TeamColor.BLACK, PieceType.ROOK));
         for (int i = 1; i <= 8; i++)
             addPiece(new ChessPosition(7, i), new ChessPiece(TeamColor.BLACK, PieceType.PAWN));
-
-        kingPositions[0] = new ChessPosition(1, 5);
-        kingPositions[1] = new ChessPosition(8, 5);
     }
 
     @Override
