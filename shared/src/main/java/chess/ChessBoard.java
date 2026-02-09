@@ -18,6 +18,8 @@ public class ChessBoard {
     public boolean longCastlingPrivilegesBlack = true;
     public boolean shortCastlingPrivilegesWhite = true;
     public boolean shortCastlingPrivilegesBlack = true;
+    public boolean existsEnPassant = false;
+    public ChessPosition enPassantSquare;
 
     public static final Set<ChessMove> CASTLING_MOVES= Set.of(
             new ChessMove(new ChessPosition(1, 5), new ChessPosition(1, 7), null),
@@ -57,6 +59,9 @@ public class ChessBoard {
                 potentialMoves.add(new ChessMove(position, new ChessPosition(position.row(), 3), null));
             }
         }
+        if(piece.getPieceType() == PieceType.PAWN && existsEnPassant && Math.abs(position.getColumn() - enPassantSquare.getColumn()) == 1) {
+            potentialMoves.add(new ChessMove(position, enPassantSquare, null));
+        }
         return potentialMoves;
     }
     private boolean isValidMove(ChessMove move) {
@@ -84,6 +89,10 @@ public class ChessBoard {
             piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
         this.addPiece(move.getEndPosition(), piece);
         this.addPiece(move.getStartPosition(), null);
+        if(piece.getPieceType() == PieceType.PAWN && move.endPosition().equals(enPassantSquare)) {
+            int direction = piece.getTeamColor() == TeamColor.WHITE ? 1 : -1;
+            this.addPiece(new ChessPosition(move.getEndPosition().getRow() - direction, move.getEndPosition().getColumn()), null);
+        }
     }
     public void castle(ChessMove move) {
         int row = move.getStartPosition().getRow();

@@ -51,7 +51,7 @@ public class ChessPiece {
     public boolean isCapture(ChessBoard board, ChessPosition position) {
         return position != null && !board.isEmptySquare(position) && board.getPiece(position).getTeamColor() != pieceColor;
     }
-    private boolean isValidIndex(int val) {
+    public boolean isValidIndex(int val) {
         return val >= 1 && val <= 8;
     }
 

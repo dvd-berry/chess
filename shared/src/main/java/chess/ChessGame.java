@@ -78,6 +78,20 @@ public class ChessGame {
         if(board.validMoves(move.getStartPosition()).contains(move)) {
             board.maintainCastlingPermissions(move);
             board.makeMove(move);
+            board.existsEnPassant = false;
+            if(piece.getPieceType() == PieceType.PAWN && Math.abs(move.startPosition().getRow() - move.endPosition().getRow()) == 2) {
+                int direction = piece.getTeamColor() == TeamColor.WHITE ? 1 : -1;
+                ChessPiece adjacentLeft = piece.isValidIndex(move.endPosition().getColumn()-1) ? board.getPiece(new ChessPosition(move.endPosition().getRow(), move.endPosition().getColumn()-1)) : null;
+                ChessPiece adjacentRight = piece.isValidIndex(move.endPosition().getColumn()+1) ? board.getPiece(new ChessPosition(move.endPosition().getRow(), move.endPosition().getColumn()+1)) : null;
+                if(adjacentLeft != null && adjacentLeft.getPieceType() == PieceType.PAWN && adjacentLeft.getTeamColor() != piece.getTeamColor()){
+                    board.existsEnPassant = true;
+                    board.enPassantSquare = new ChessPosition(move.endPosition().getRow() - direction, move.endPosition().getColumn());
+                }
+                if(adjacentRight != null && adjacentRight.getPieceType() == PieceType.PAWN && adjacentRight.getTeamColor() != piece.getTeamColor()){
+                    board.existsEnPassant = true;
+                    board.enPassantSquare = new ChessPosition(move.endPosition().getRow() - direction, move.endPosition().getColumn());
+                }
+            }
             switchTurn();
         }
         else throw new InvalidMoveException();
