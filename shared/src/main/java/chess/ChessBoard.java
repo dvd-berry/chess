@@ -59,6 +59,8 @@ public class ChessBoard {
 
     public void makeMove(ChessMove move) {
         ChessPiece piece = this.getPiece((move.getStartPosition()));
+        if(move.promotionPiece() != null)
+            piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
         this.addPiece(move.getEndPosition(), piece);
         this.addPiece(move.getStartPosition(), null);
     }
