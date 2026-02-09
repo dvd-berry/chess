@@ -3,10 +3,7 @@ package chess;
 import chess.ChessPiece.PieceType;
 import chess.ChessGame.TeamColor;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -17,6 +14,17 @@ import java.util.Objects;
 public class ChessBoard {
     private final ChessPiece[][] board;
 
+    public boolean longCastlingPrivilegesWhite = true;
+    public boolean longCastlingPrivilegesBlack = true;
+    public boolean shortCastlingPrivilegesWhite = true;
+    public boolean shortCastlingPrivilegesBlack = true;
+
+    public static final Set<ChessMove> CASTLING_MOVES= Set.of(
+            new ChessMove(new ChessPosition(1, 5), new ChessPosition(1, 7), null),
+            new ChessMove(new ChessPosition(1, 5), new ChessPosition(1, 3), null),
+            new ChessMove(new ChessPosition(8, 5), new ChessPosition(8, 7), null),
+            new ChessMove(new ChessPosition(8, 5), new ChessPosition(8, 3), null));
+
     public ChessBoard() {
         board = new ChessPiece[8][8];
     }
@@ -24,7 +32,7 @@ public class ChessBoard {
         for(int i = 0; i < 8; i++)
             System.arraycopy(other.board[i], 0, this.board[i], 0, 8);
     }
-    private ChessPosition getKingPosition(TeamColor color) {
+    public ChessPosition getKingPosition(TeamColor color) {
         for(int i = 1; i <= 8; i++) {
             for(int j = 1; j<= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
@@ -41,10 +49,17 @@ public class ChessBoard {
             return Collections.emptyList();
         Collection<ChessMove> potentialMoves = piece.pieceMoves(this, position);
         potentialMoves.removeIf(move -> !isValidMove(move)); // removes all invalid moves
-
+        if(piece.getPieceType() == PieceType.KING) {
+            if(canCastle(piece.getTeamColor(), CastleType.SHORT)) {
+                potentialMoves.add(new ChessMove(position, new ChessPosition(position.row(), 7), null));
+            }
+            if(canCastle(piece.getTeamColor(), CastleType.LONG)) {
+                potentialMoves.add(new ChessMove(position, new ChessPosition(position.row(), 3), null));
+            }
+        }
         return potentialMoves;
     }
-    public boolean isValidMove(ChessMove move) {
+    private boolean isValidMove(ChessMove move) {
         ChessPiece piece = this.getPiece(move.startPosition());
         if(piece == null)
             return false;
@@ -56,15 +71,112 @@ public class ChessBoard {
         duplicate.makeMove(move);
         return !duplicate.isInCheck(piece.getTeamColor());
     }
-
     public void makeMove(ChessMove move) {
         ChessPiece piece = this.getPiece((move.getStartPosition()));
+        if(piece.getPieceType() == PieceType.KING && CASTLING_MOVES.contains(move)) {
+            CastleType castleType = (move.getEndPosition().getColumn() == 7) ? CastleType.SHORT : CastleType.LONG;
+            castle(move);
+            revokeCastling(piece.getTeamColor(), castleType);
+            return;
+        }
+        
         if(move.promotionPiece() != null)
             piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
         this.addPiece(move.getEndPosition(), piece);
         this.addPiece(move.getStartPosition(), null);
     }
+    public void castle(ChessMove move) {
+        int row = move.getStartPosition().getRow();
+        int endCol = move.getEndPosition().getColumn();
+
+        // Makes move without function call to avoid infinite recursion
+        this.addPiece(move.getEndPosition(), this.getPiece((move.getStartPosition())));
+        this.addPiece(move.getStartPosition(), null);
+
+        int rookEndCol = (endCol == 7) ? 6 : 4; // final rook position
+        int rookStartCol = (rookEndCol == 6) ? 8 : 1; // left or right rook
+        ChessMove rookMove = new ChessMove(new ChessPosition(row, rookStartCol), new ChessPosition(row, rookEndCol), null);
+        makeMove(rookMove);
+
+    }
+    public void maintainCastlingPermissions(ChessMove move) {
+        Collection<ChessPosition> rightRookPositions = new ArrayList<>(List.of(new ChessPosition(1,8), new ChessPosition(8,8)));
+        Collection<ChessPosition> leftRookPositions = new ArrayList<>(List.of(new ChessPosition(1,1), new ChessPosition(8,1)));
+        ChessPiece piece = getPiece(move.getStartPosition());
+        if(move.getStartPosition().equals(getKingPosition(piece.getTeamColor())))
+            revokeCastling(piece.getTeamColor(), CastleType.ALL);
+        else if(rightRookPositions.contains(move.getStartPosition()))
+            revokeCastling(piece.getTeamColor(), CastleType.SHORT);
+        else if(leftRookPositions.contains(move.getStartPosition()))
+            revokeCastling(piece.getTeamColor(), CastleType.LONG);
+    }
+    public enum CastleType {
+        LONG,
+        SHORT,
+        ALL
+    }
+    public void revokeCastling(TeamColor color, CastleType type) {
+        if(type == CastleType.ALL) {
+            revokeCastling(color, CastleType.SHORT);
+            revokeCastling(color, CastleType.LONG);
+        }
+        switch(color) {
+            case WHITE -> {
+                if(type == CastleType.SHORT) shortCastlingPrivilegesWhite = false;
+                else longCastlingPrivilegesWhite = false;
+            }
+            case BLACK -> {
+                if(type == CastleType.SHORT) shortCastlingPrivilegesBlack = false;
+                else longCastlingPrivilegesBlack = false;
+            }
+        }
+    }
+    public boolean hasCastlingPrivileges(TeamColor color, CastleType type) {
+        if(type == CastleType.ALL)
+            return hasCastlingPrivileges(color, CastleType.SHORT) && hasCastlingPrivileges(color, CastleType.LONG);
+        try {
+            switch (color) {
+                case WHITE -> {
+                    if (type == CastleType.SHORT) return shortCastlingPrivilegesWhite && getPiece(new ChessPosition(1, 8)).getPieceType() == PieceType.ROOK && getPiece(new ChessPosition(1, 8)).getTeamColor() == TeamColor.WHITE;
+                    else return longCastlingPrivilegesWhite && getPiece(new ChessPosition(1, 1)).getPieceType() == PieceType.ROOK && getPiece(new ChessPosition(1, 1)).getTeamColor() == TeamColor.WHITE;
+                }
+                case BLACK -> {
+                    if (type == CastleType.SHORT) return shortCastlingPrivilegesBlack && getPiece(new ChessPosition(8, 8)).getPieceType() == PieceType.ROOK && getPiece(new ChessPosition(8, 8)).getTeamColor() == TeamColor.BLACK;
+                    else return longCastlingPrivilegesBlack && getPiece(new ChessPosition(8, 1)).getPieceType() == PieceType.ROOK && getPiece(new ChessPosition(8, 1)).getTeamColor() == TeamColor.BLACK;
+                }
+            }
+        }
+        catch (NullPointerException except) {
+            return false;
+        }
+        return false;
+    }
+    private boolean castlingPathClear(TeamColor color, CastleType type) {
+        Collection<ChessPosition> whiteLongSquares = new ArrayList<>(List.of(new ChessPosition(1,2), new ChessPosition(1,3), new ChessPosition(1,4)));
+        Collection<ChessPosition> whiteShortSquares = new ArrayList<>(List.of(new ChessPosition(1,6), new ChessPosition(1,7)));
+        Collection<ChessPosition> blackLongSquares = new ArrayList<>(List.of(new ChessPosition(8,2), new ChessPosition(8,3), new ChessPosition(8,4)));
+        Collection<ChessPosition> blackShortSquares = new ArrayList<>(List.of(new ChessPosition(8,6), new ChessPosition(8,7)));
+        switch(type) {
+            case SHORT -> {
+                return (color == TeamColor.WHITE) ? !isInCheck(color) && whiteShortSquares.stream().allMatch(position -> isEmptySquare(position) && untargeted(color, position)) : !isInCheck(color) && blackShortSquares.stream().allMatch(position -> isEmptySquare(position) && untargeted(color, position));
+            }
+            case LONG -> {
+                return (color == TeamColor.WHITE) ? !isInCheck(color) && whiteLongSquares.stream().allMatch(position -> isEmptySquare(position) && untargeted(color, position)) : !isInCheck(color) && blackLongSquares.stream().allMatch(position -> isEmptySquare(position) && untargeted(color, position));
+            }
+            default -> throw new IllegalArgumentException("ALL is not a valid parameter for this function");
+        }
+    }
+    private boolean canCastle(TeamColor color, CastleType type){
+        return hasCastlingPrivileges(color, type) && castlingPathClear(color, type);
+    }
+
+
+
+
+
+
     public boolean isInCheck(TeamColor team) {
+        ChessPosition kingPosition = getKingPosition(team);
         for (int i = 1; i <= 8; i++)
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
@@ -72,10 +184,23 @@ public class ChessBoard {
                 if(piece == null || piece.getTeamColor() == team)
                     continue;
                 for(ChessMove move : piece.pieceMoves(this, position))
-                    if(move.endPosition().equals(getKingPosition(team)))
+                    if(move.endPosition().equals(kingPosition))
                         return true;
             }
         return false;
+    }
+    public boolean untargeted(TeamColor team, ChessPosition position) {
+        for (int i = 1; i <= 8; i++)
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition current = new ChessPosition(i, j);
+                ChessPiece piece = getPiece(current);
+                if(piece == null || piece.getTeamColor() == team)
+                    continue;
+                for(ChessMove move : piece.pieceMoves(this, current))
+                    if(move.endPosition().equals(position))
+                        return false;
+            }
+        return true;
     }
     public boolean isInCheckmate(TeamColor team) {
         return isInCheck(team) && noLegalMoves(team);
@@ -92,6 +217,9 @@ public class ChessBoard {
                 }
             }
         return true;
+    }
+    public boolean isEmptySquare(ChessPosition position) {
+        return getPiece(position) == null;
     }
     public boolean isInStalemate(TeamColor team) {
         return !isInCheck(team) && noLegalMoves(team);

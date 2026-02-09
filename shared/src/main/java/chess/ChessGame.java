@@ -1,7 +1,9 @@
 package chess;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
+import chess.ChessPiece.PieceType;
+
+import static chess.ChessBoard.CASTLING_MOVES;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -12,6 +14,11 @@ import java.util.Objects;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor turn;
+
+    
+
+
+
 
     public ChessGame() {
         board = new ChessBoard();
@@ -25,6 +32,7 @@ public class ChessGame {
     public TeamColor getTeamTurn() {
         return turn;
     }
+
 
     /**
      * Set's which teams turn it is
@@ -67,11 +75,16 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if(piece == null || piece.getTeamColor() != turn)
             throw new InvalidMoveException();
-        if(board.isValidMove(move)) {
+        if(board.validMoves(move.getStartPosition()).contains(move)) {
+            board.maintainCastlingPermissions(move);
             board.makeMove(move);
             switchTurn();
         }
         else throw new InvalidMoveException();
+    }
+    private void castle(ChessMove move) {
+        board.castle(move);
+        switchTurn();
     }
 
     /**

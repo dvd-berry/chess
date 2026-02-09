@@ -47,11 +47,9 @@ public class ChessPiece {
         return type;
     }
 
-    public boolean isEmptySquare(ChessBoard board, ChessPosition position) {
-        return board.getPiece(position) == null;
-    }
+
     public boolean isCapture(ChessBoard board, ChessPosition position) {
-        return position != null && !isEmptySquare(board, position) && board.getPiece(position).getTeamColor() != pieceColor;
+        return position != null && !board.isEmptySquare(position) && board.getPiece(position).getTeamColor() != pieceColor;
     }
     private boolean isValidIndex(int val) {
         return val >= 1 && val <= 8;
@@ -73,9 +71,9 @@ public class ChessPiece {
         ChessPosition captureLeft = isValidIndex(column-1) ? new ChessPosition(forwardRow, column-1) : null;
         ChessPosition captureRight = isValidIndex(column+1) ? new ChessPosition(forwardRow, column+1) : null;
 
-        if(isStartSquare && isEmptySquare(board, oneForward) && isEmptySquare(board, twoForward))
+        if(isStartSquare && board.isEmptySquare(oneForward) && board.isEmptySquare(twoForward))
             moves.add(new ChessMove(myPosition, twoForward, null)); // Starting move
-        if(isEmptySquare(board, oneForward))
+        if(board.isEmptySquare(oneForward))
             for(PieceType promotion : promotionPieces) // promotionPieces contains either all promotionPieces or null if not a promotion
                 moves.add(new ChessMove(myPosition, oneForward, promotion)); // Normal forward move
         if(isCapture(board, captureLeft))
@@ -99,7 +97,7 @@ public class ChessPiece {
 
             while (isValidIndex(r) && isValidIndex(c)) {
                 ChessPosition target = new ChessPosition(r, c);
-                if (isEmptySquare(board, target))
+                if (board.isEmptySquare(target))
                     moves.add(new ChessMove(myPosition, target, null));
                 else { // Captures or friendly pieces blocking
                     if (isCapture(board, target))
