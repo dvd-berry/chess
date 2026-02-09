@@ -46,6 +46,11 @@ public class ChessBoard {
     }
     public boolean isValidMove(ChessMove move) {
         ChessPiece piece = this.getPiece(move.startPosition());
+        if(piece == null)
+            return false;
+        Collection<ChessMove> moveList = piece.pieceMoves(this, move.getStartPosition());
+        if(!moveList.contains(move))
+            return false;
         ChessBoard duplicate = new ChessBoard();
         duplicate.copy(this);
         duplicate.makeMove(move);
@@ -53,9 +58,9 @@ public class ChessBoard {
     }
 
     public void makeMove(ChessMove move) {
-        ChessPiece piece = this.getPiece((move.startPosition()));
-        this.addPiece(move.endPosition(), piece);
-        this.addPiece(move.startPosition(), null);
+        ChessPiece piece = this.getPiece((move.getStartPosition()));
+        this.addPiece(move.getEndPosition(), piece);
+        this.addPiece(move.getStartPosition(), null);
     }
     public boolean isInCheck(TeamColor team) {
         for (int i = 1; i <= 8; i++)

@@ -18,6 +18,7 @@ public record ChessMove(ChessPosition startPosition, ChessPosition endPosition, 
     public ChessPosition getStartPosition() {
         return startPosition;
     }
+    public ChessPosition startPosition() {return startPosition;}
 
     /**
      * @return ChessPosition of ending location
@@ -25,6 +26,7 @@ public record ChessMove(ChessPosition startPosition, ChessPosition endPosition, 
     public ChessPosition getEndPosition() {
         return endPosition;
     }
+    public ChessPosition endPosition() { return endPosition;}
 
     /**
      * Gets the type of piece to promote a pawn to if pawn promotion is part of this
@@ -32,6 +34,7 @@ public record ChessMove(ChessPosition startPosition, ChessPosition endPosition, 
      *
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
+    public PieceType getPromotionPiece() {return promotionPiece;}
     public PieceType promotionPiece() {
         return promotionPiece;
     }
