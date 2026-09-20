@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Objects;
 
 import chess.ChessGame.TeamColor;
-import chess.ChessPiece.PieceType;
 
 /**
  * Represents a single chess piece
@@ -68,9 +67,6 @@ public class ChessPiece {
     private boolean isValidIndex(int val) {
         return (val >= 1 && val <= 8);
     }
-    private boolean isValidPosition(ChessPosition pos) {
-        return isValidIndex(pos.getRow()) && isValidIndex(pos.getColumn());
-    }
 
     private boolean isCapture(ChessBoard board, ChessPosition position) {
         return !board.isEmptySquare(position) && board.getPiece(position).getTeamColor() != teamColor;
@@ -118,7 +114,45 @@ public class ChessPiece {
     }
     private Collection<ChessMove> majorPieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        int[][] dirVec = getVector();
+
+        for (int[] d : dirVec) {
+            int r = row + d[0];
+            int c = col + d[1];
+            while(isValidIndex(r) && isValidIndex(c)) {
+                ChessPosition target = new ChessPosition(r, c);
+                if (board.isEmptySquare(target))
+                    moves.add(new ChessMove(myPosition, target, null));
+                else {
+                    if (isCapture(board, target)) {
+                        moves.add(new ChessMove(myPosition, target, null));
+                    }
+                    break; // ends direction if runs into piece
+                }
+                if (type == PieceType.KING || type == PieceType.KNIGHT)
+                    break; // can only move one unit
+                r += d[0];
+                c += d[1];
+            }
+        }
 
         return moves;
+    }
+
+    private int[][] getVector() {
+        int[][] cardinalVec = {{-1, 0}, {1,0}, {0,1}, {0,-1}};
+        int[][] diagonalVec = {{-1, -1}, {-1, 1}, {1, 1}, {1, -1}};
+        int[][] compassVec = {{-1, 0}, {1,0}, {0,1}, {0,-1}, {-1, -1}, {-1, 1}, {1, 1}, {1, -1}};
+        int[][] knightVec = {{-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2,1}, {2, -1}, {1, -2}, {-1, -2}};
+
+        return switch (type) {
+            case ROOK -> cardinalVec;
+            case BISHOP -> diagonalVec;
+            case KING,QUEEN -> compassVec;
+            case KNIGHT -> knightVec;
+            default -> throw new IllegalStateException("Unwated Piece Type: " + type);
+        };
     }
 }
