@@ -15,6 +15,13 @@ public class ChessBoard {
 
     private final ChessPiece[][] board;
 
+    private boolean isValidIndex(int val) {
+        return (val >= 1 && val <= 8);
+    }
+    private boolean isValidPosition(ChessPosition pos) {
+        return isValidIndex(pos.getRow()) && isValidIndex(pos.getColumn());
+    }
+
     public ChessBoard() {
         board = new ChessPiece[8][8];
     }
@@ -40,7 +47,8 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow()-1][position.getColumn()-1] = piece;
+        if(isValidPosition(position))
+            board[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
     /**
@@ -84,6 +92,6 @@ public class ChessBoard {
         addPiece(new ChessPosition(8,7), new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT));
         addPiece(new ChessPosition(8,8), new ChessPiece(TeamColor.BLACK, PieceType.ROOK));
         for (int i = 0;i < 8; i++)
-            addPiece(new ChessPosition(7,i), new ChessPiece(TeamColor.WHITE, PieceType.PAWN));
+            addPiece(new ChessPosition(7,i), new ChessPiece(TeamColor.BLACK, PieceType.PAWN));
     }
 }
