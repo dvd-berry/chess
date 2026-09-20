@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -64,6 +65,13 @@ public class ChessPiece {
         return type;
     }
 
+    private boolean isValidIndex(int val) {
+        return (val >= 1 && val <= 8);
+    }
+    private boolean isValidPosition(ChessPosition pos) {
+        return isValidIndex(pos.getRow()) && isValidIndex(pos.getColumn());
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -72,6 +80,17 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return board.getPiece(myPosition).getPieceType() == PieceType.PAWN ? pawnMoves(board, myPosition) : majorPieceMoves(board, myPosition);
+    }
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> pieceMoves = new ArrayList<>();
+
+
+        return pieceMoves;
+    }
+    private Collection<ChessMove> majorPieceMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> pieceMoves = new ArrayList<>();
+
+        return pieceMoves;
     }
 }
