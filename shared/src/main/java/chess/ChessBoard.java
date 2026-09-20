@@ -80,7 +80,7 @@ public class ChessBoard {
         addPiece(new ChessPosition(1,6), new ChessPiece(TeamColor.WHITE, PieceType.BISHOP));
         addPiece(new ChessPosition(1,7), new ChessPiece(TeamColor.WHITE, PieceType.KNIGHT));
         addPiece(new ChessPosition(1,8), new ChessPiece(TeamColor.WHITE, PieceType.ROOK));
-        for (int i = 0;i < 8; i++)
+        for (int i = 1;i <= 8; i++)
             addPiece(new ChessPosition(2,i), new ChessPiece(TeamColor.WHITE, PieceType.PAWN));
 
         addPiece(new ChessPosition(8,1), new ChessPiece(TeamColor.BLACK, PieceType.ROOK));
@@ -91,7 +91,7 @@ public class ChessBoard {
         addPiece(new ChessPosition(8,6), new ChessPiece(TeamColor.BLACK, PieceType.BISHOP));
         addPiece(new ChessPosition(8,7), new ChessPiece(TeamColor.BLACK, PieceType.KNIGHT));
         addPiece(new ChessPosition(8,8), new ChessPiece(TeamColor.BLACK, PieceType.ROOK));
-        for (int i = 0;i < 8; i++)
+        for (int i = 1;i <= 8; i++)
             addPiece(new ChessPosition(7,i), new ChessPiece(TeamColor.BLACK, PieceType.PAWN));
     }
 }
