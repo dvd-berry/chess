@@ -50,4 +50,16 @@ public record ChessMove(ChessPosition startPosition, ChessPosition endPosition, 
     public ChessPiece.PieceType promotionPiece() {
         return promotionPiece;
     }
+
+    public ChessPosition getStartPosition() {
+        return startPosition();
+    }
+
+    public ChessPosition getEndPosition() {
+        return endPosition();
+    }
+
+    public ChessPiece.PieceType getPromotionPiece() {
+        return promotionPiece();
+    }
 }
