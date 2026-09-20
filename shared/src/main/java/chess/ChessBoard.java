@@ -18,26 +18,17 @@ public class ChessBoard {
     private boolean isValidIndex(int val) {
         return (val >= 1 && val <= 8);
     }
+
     private boolean isValidPosition(ChessPosition pos) {
         return isValidIndex(pos.getRow()) && isValidIndex(pos.getColumn());
     }
 
+    public boolean isEmptySquare(ChessPosition pos) {
+        return board[pos.getRow()-1][pos.getColumn()-1] == null;
+    }
+
     public ChessBoard() {
         board = new ChessPiece[8][8];
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessBoard that = (ChessBoard) o;
-        return Objects.deepEquals(board, that.board);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.deepHashCode(board);
     }
 
     /**
@@ -94,4 +85,19 @@ public class ChessBoard {
         for (int i = 1;i <= 8; i++)
             addPiece(new ChessPosition(7,i), new ChessPiece(TeamColor.BLACK, PieceType.PAWN));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
+    }
+
 }

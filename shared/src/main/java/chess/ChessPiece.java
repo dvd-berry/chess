@@ -15,12 +15,12 @@ import chess.ChessPiece.PieceType;
  */
 public class ChessPiece {
 
-    private final TeamColor color;
+    private final TeamColor teamColor;
     private final PieceType type;
 
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        color = pieceColor;
+        teamColor = pieceColor;
         this.type = type;
 
     }
@@ -31,12 +31,12 @@ public class ChessPiece {
             return false;
         }
         ChessPiece piece = (ChessPiece) o;
-        return color == piece.color && type == piece.type;
+        return teamColor == piece.teamColor && type == piece.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, type);
+        return Objects.hash(teamColor, type);
     }
 
     /**
@@ -55,7 +55,7 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return color;
+        return teamColor;
     }
 
     /**
@@ -72,6 +72,10 @@ public class ChessPiece {
         return isValidIndex(pos.getRow()) && isValidIndex(pos.getColumn());
     }
 
+    private boolean isCapture(ChessBoard board, ChessPosition position) {
+        return !board.isEmptySquare(position) && board.getPiece(position).getTeamColor() != teamColor;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -83,14 +87,38 @@ public class ChessPiece {
         return board.getPiece(myPosition).getPieceType() == PieceType.PAWN ? pawnMoves(board, myPosition) : majorPieceMoves(board, myPosition);
     }
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> pieceMoves = new ArrayList<>();
+        Collection<ChessMove> moves = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
 
+        boolean isStartSquare = teamColor == TeamColor.WHITE ? row == 2 : row == 7;
+        boolean isPromotion = teamColor == TeamColor.WHITE ? row == 7 : row == 2;
 
-        return pieceMoves;
+        int direction = teamColor == TeamColor.WHITE ? 1 : -1;
+        ChessPosition oneForward = new ChessPosition(row + direction, col);
+        ChessPosition twoForward = new ChessPosition(row + direction*2, col);
+        ChessPosition captureLeft = isValidIndex(myPosition.getColumn()-1) ? new ChessPosition(row+direction, col-1) : null;
+        ChessPosition captureRight = isValidIndex(myPosition.getColumn()+1) ? new ChessPosition(row+direction, col+1) : null;
+
+        PieceType[] promotionPieces = isPromotion ? new PieceType[]{PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT} : new PieceType[]{null};
+
+        if(isStartSquare && board.isEmptySquare(oneForward) && board.isEmptySquare(twoForward))
+            moves.add(new ChessMove(myPosition, twoForward, null));
+        if(board.isEmptySquare(oneForward))
+            for (PieceType promotionPiece : promotionPieces)
+                moves.add(new ChessMove(myPosition, oneForward, promotionPiece));
+        if(!Objects.isNull(captureLeft) && isCapture(board, captureLeft))
+            for (PieceType promotionPiece : promotionPieces)
+                moves.add(new ChessMove(myPosition, captureLeft, promotionPiece));
+        if(!Objects.isNull(captureRight) && isCapture(board, captureRight))
+            for (PieceType promotionPiece : promotionPieces)
+                moves.add(new ChessMove(myPosition, captureRight, promotionPiece));
+
+        return moves;
     }
     private Collection<ChessMove> majorPieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> pieceMoves = new ArrayList<>();
+        Collection<ChessMove> moves = new ArrayList<>();
 
-        return pieceMoves;
+        return moves;
     }
 }
