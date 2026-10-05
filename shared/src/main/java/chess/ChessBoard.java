@@ -59,6 +59,12 @@ public class ChessBoard {
         throw new IllegalStateException("There is no king on the board");
     }
 
+    public void applyMove(ChessMove move) {
+        ChessPiece piece = getPiece(move.getStartPosition());
+        addPiece(move.getEndPosition(), move.getPromotionPiece() == null ? piece : new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+        addPiece(move.getStartPosition(), null);
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
