@@ -120,7 +120,7 @@ public class ChessGame {
         return false;
     }
 
-    private boolean existsLegalMove(TeamColor color) {
+    private boolean noLegalMoves(TeamColor color) {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
@@ -129,11 +129,11 @@ public class ChessGame {
                     continue;
                 Collection<ChessMove> moves = validMoves(position);
                 if (!moves.isEmpty()) {
-                    return true;
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -143,7 +143,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return isInCheck(board, teamColor) && noLegalMoves(teamColor);
     }
 
     /**
@@ -154,7 +154,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     /**
@@ -163,7 +163,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+
     }
 
     /**
@@ -172,6 +172,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+
     }
 }
