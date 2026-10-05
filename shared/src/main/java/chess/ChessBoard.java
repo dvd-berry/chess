@@ -47,6 +47,18 @@ public class ChessBoard {
         return board[position.getRow()-1][position.getColumn()-1];
     }
 
+    public ChessPosition getKingPosition(TeamColor color) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = getPiece(position);
+                if (piece != null && piece.getPieceType() == PieceType.KING && piece.getTeamColor() == color)
+                    return position;
+            }
+        }
+        throw new IllegalStateException("There is no king on the board");
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
