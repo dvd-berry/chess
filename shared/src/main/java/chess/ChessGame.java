@@ -172,6 +172,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-
+        return board;
     }
 }
