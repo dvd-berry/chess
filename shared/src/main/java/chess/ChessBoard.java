@@ -19,6 +19,12 @@ public class ChessBoard {
         board = new ChessPiece[8][8];
 
     }
+    public ChessBoard(ChessBoard other) {
+        board = new ChessPiece[8][8];
+        for(int i = 0; i < 8; i++) {
+            System.arraycopy(other.board[i], 0, board[i], 0, 8);
+        }
+    }
 
     /**
      * Adds a chess piece to the chessboard
