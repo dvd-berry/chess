@@ -163,7 +163,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-
+        this.board = new ChessBoard(board);
     }
 
     /**
