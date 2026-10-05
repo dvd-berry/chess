@@ -17,7 +17,6 @@ public class ChessGame {
         board = new ChessBoard();
         board.resetBoard();
         turn = TeamColor.WHITE;
-        return;
 
     }
 
@@ -66,7 +65,7 @@ public class ChessGame {
         for (ChessMove move : moves) {
             ChessBoard copy = new ChessBoard(board);
             copy.applyMove(move);
-            if(!isInCheck(copy, piece.getTeamColor())) {
+            if(!reallyIsInCheck(copy, piece.getTeamColor())) {
                 legal.add(move);
             }
         }
@@ -103,7 +102,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    private boolean isInCheck(ChessBoard board, TeamColor teamColor) {
+    private boolean reallyIsInCheck(ChessBoard board, TeamColor teamColor) {
         ChessPosition kingPos = board.getKingPosition(teamColor);
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
@@ -119,6 +118,10 @@ public class ChessGame {
             }
         }
         return false;
+    }
+
+    public boolean isInCheck(TeamColor teamColor) {
+        return reallyIsInCheck(board, teamColor);
     }
 
     private boolean noLegalMoves(TeamColor color) {
@@ -144,7 +147,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(board, teamColor) && noLegalMoves(teamColor);
+        return reallyIsInCheck(board, teamColor) && noLegalMoves(teamColor);
     }
 
     /**
@@ -155,7 +158,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        return !isInCheck(board, teamColor) && noLegalMoves(teamColor);
+        return !reallyIsInCheck(board, teamColor) && noLegalMoves(teamColor);
     }
 
     /**
@@ -175,4 +178,5 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
 }
