@@ -36,6 +36,10 @@ public class ChessGame {
         turn = team;
     }
 
+    private void switchTurn() {
+        turn = turn == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -75,7 +79,21 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if(piece == null) {
+            throw new InvalidMoveException("There is no piece on this square");
+        }
+        if(piece.getTeamColor() != turn) {
+            throw new InvalidMoveException("Improper Team Turn");
+        }
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        if(!validMoves.contains(move)) {
+            throw new InvalidMoveException("Invalid Move");
+        }
+        else {
+            board.applyMove(move);
+            switchTurn();
+        }
     }
 
     /**
