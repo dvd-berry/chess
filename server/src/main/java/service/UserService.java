@@ -50,6 +50,14 @@ public class UserService {
 
     }
 
+    public void logout(LogoutRequest request)
+            throws UnauthorizedException, DataAccessException  {
+        if(request == null || request.authToken() == null || authDAO.getAuth(request.authToken()) == null)
+            throw new UnauthorizedException("Error: unauthorized");
+
+        authDAO.deleteAuth(request.authToken());
+    }
+
     private String generateToken() {
         return UUID.randomUUID().toString();
     }

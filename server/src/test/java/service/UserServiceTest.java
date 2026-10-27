@@ -71,4 +71,19 @@ public class UserServiceTest {
         assertThrows(BadRequestException.class, () -> userService.login(new LoginRequest(null, "Skyloft")));
     }
 
+    @Test
+    public void logoutSuccess() throws Exception {
+        RegisterResult result = userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+        userService.logout(new LogoutRequest(result.authToken()));
+
+        assertNull(authDAO.getAuth(result.authToken()));
+    }
+
+    @Test
+    public void logoutInvalidToken() throws Exception {
+        RegisterResult result = userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+
+        assertThrows(UnauthorizedException.class, () -> userService.logout(new LogoutRequest("Tingle-token")));
+    }
+
 }
