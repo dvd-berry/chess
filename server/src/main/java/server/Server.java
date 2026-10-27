@@ -29,10 +29,13 @@ public class Server {
         // Register your endpoints and exception handlers here.
         javalin.delete("/db", this::clear);
         javalin.post("/user", this::register);
+        javalin.post("/session", this::login);
 
         javalin.exception(BadRequestException.class, (e, ctx) -> sendError(ctx, 400, e.getMessage()));
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> sendError(ctx, 403, e.getMessage()));
         javalin.exception(Exception.class, this::handleException);
+        javalin.exception(UnauthorizedException.class, (e, ctx) -> sendError(ctx, 401, e.getMessage()));
+
 
     }
 
@@ -46,6 +49,13 @@ public class Server {
         RegisterRequest request = gson.fromJson(ctx.body(), RegisterRequest.class);
         RegisterResult result = userService.register(request);
         ctx.status(200);
+        ctx.result(gson.toJson(result));
+    }
+
+    private void login(Context ctx) throws Exception {
+        LoginRequest request = gson.fromJson(ctx.body(), LoginRequest.class);
+        LoginResult result = userService.login(request);
+        ctx.status(200); // assuming no exception thrown
         ctx.result(gson.toJson(result));
     }
 

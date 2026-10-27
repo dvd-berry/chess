@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import org.eclipse.jetty.util.log.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,36 @@ public class UserServiceTest {
     public void registerMissingField() {
         assertThrows(BadRequestException.class, () ->
                 userService.register(new RegisterRequest("Link", null, "link@triforce.com")));
+    }
+
+    @Test
+    public void loginSuccess() throws Exception {
+        userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+
+        LoginResult result = userService.login(new LoginRequest("Link", "zelda<3"));
+
+        assertEquals("Link", result.username());
+        assertNotNull(authDAO.getAuth(result.authToken()));
+    }
+
+    @Test
+    public void loginWrongPassword() throws Exception {
+        userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+
+        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest("Link", "goron<3")));
+    }
+
+    @Test
+    public void loginWrongUsername() throws Exception {
+        userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+        assertThrows(UnauthorizedException.class, () -> userService.login(new LoginRequest("Saria", "Kokiri")));
+
+    }
+
+    @Test
+    public void loginNullParameter() throws Exception {
+        userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+        assertThrows(BadRequestException.class, () -> userService.login(new LoginRequest(null, "Skyloft")));
     }
 
 }

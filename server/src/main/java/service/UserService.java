@@ -31,4 +31,26 @@ public class UserService {
 
         return new RegisterResult(request.username(),authToken);
     }
+
+    public LoginResult login(LoginRequest request)
+            throws BadRequestException, UnauthorizedException, DataAccessException {
+        if(request == null || request.username() == null || request.password() == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        UserData user = userDAO.getUser(request.username());
+        if (user == null || !user.password().equals(request.password())) {
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+
+        String authToken = generateToken();
+        authDAO.createAuth(new AuthData(authToken, request.username()));
+
+        return new LoginResult(request.username(), authToken);
+
+    }
+
+    private String generateToken() {
+        return UUID.randomUUID().toString();
+    }
 }
