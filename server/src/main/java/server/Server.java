@@ -63,7 +63,7 @@ public class Server {
         String authToken = ctx.header("authorization");
         userService.logout(new LogoutRequest(authToken));
         ctx.status(200);
-        ctx.result(gson.toJson("{}"));
+        ctx.result("{}");
 
     }
 
