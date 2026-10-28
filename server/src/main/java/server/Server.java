@@ -15,6 +15,7 @@ public class Server {
 
     private final Gson gson = new Gson();
     private final UserService userService;
+    private final GameService gameService;
 
     public Server() {
         UserDAO userDAO = new MemoryUserDAO();
@@ -23,6 +24,7 @@ public class Server {
 
         clearService = new ClearService(userDAO, authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(authDAO, gameDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
@@ -31,6 +33,7 @@ public class Server {
         javalin.post("/user", this::register);
         javalin.post("/session", this::login);
         javalin.delete("/session", this::logout);
+        javalin.post("/game", this::createGame);
 
         javalin.exception(BadRequestException.class, (e, ctx) -> sendError(ctx, 400, e.getMessage()));
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> sendError(ctx, 403, e.getMessage()));
@@ -64,7 +67,16 @@ public class Server {
         userService.logout(new LogoutRequest(authToken));
         ctx.status(200);
         ctx.result("{}");
+    }
 
+    private void createGame(Context ctx) throws Exception {
+        String authToken = ctx.header("authorization");
+        CreateGameRequest bodyRequest = gson.fromJson(ctx.body(), CreateGameRequest.class);
+        String gameName = (bodyRequest == null) ? null : bodyRequest.gameName();
+
+        CreateGameResult result = gameService.createGame(new CreateGameRequest(authToken, gameName));
+        ctx.status(200);
+        ctx.result(gson.toJson(result));
     }
 
     private void sendError(Context ctx, int status, String message) {
