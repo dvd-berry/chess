@@ -35,6 +35,7 @@ public class Server {
         javalin.delete("/session", this::logout);
         javalin.post("/game", this::createGame);
         javalin.get("/game", this::listGames);
+        javalin.put("/game", this::joinGame);
 
         javalin.exception(BadRequestException.class, (e, ctx) -> sendError(ctx, 400, e.getMessage()));
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> sendError(ctx, 403, e.getMessage()));
@@ -86,6 +87,18 @@ public class Server {
 
         ctx.status(200);
         ctx.result(gson.toJson(result));
+    }
+
+    private void joinGame(Context ctx) throws Exception {
+        String authToken = ctx.header("authorization");
+        JoinGameRequest requestBody = gson.fromJson(ctx.body(), JoinGameRequest.class);
+        String playerColor = requestBody == null ? null : requestBody.playerColor();
+        int gameID = requestBody == null ? 0 : requestBody.gameID();
+
+        gameService.joinGame(new JoinGameRequest(authToken, playerColor, gameID));
+        ctx.status(200);
+        ctx.result("{}");
+
     }
 
     private void sendError(Context ctx, int status, String message) {

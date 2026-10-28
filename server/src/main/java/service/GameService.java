@@ -3,6 +3,8 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import model.AuthData;
+import model.GameData;
 
 
 public class GameService {
@@ -32,9 +34,40 @@ public class GameService {
         return new ListGamesResult(gameDAO.listGames());
     }
 
-    private void authorize(String authToken) throws UnauthorizedException, DataAccessException {
+    public void joinGame(JoinGameRequest request)
+            throws UnauthorizedException, BadRequestException, AlreadyTakenException, DataAccessException {
+        String username = authorize(request.authToken()).username();
+
+        GameData game = gameDAO.getGame(request.gameID());
+        if (game == null) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        GameData updated;
+        if("WHITE".equals(request.playerColor())) {
+            if(game.whiteUsername() != null) {
+                throw new AlreadyTakenException("Error: already taken");
+            }
+            updated = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+        }
+        else if("BLACK".equals(request.playerColor())) {
+            if(game.blackUsername() != null) {
+                throw new AlreadyTakenException("Error: already taken");
+            }
+            updated = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+        } else {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        gameDAO.updateGame(updated);
+
+    }
+
+    private AuthData authorize(String authToken) throws UnauthorizedException, DataAccessException {
+        AuthData auth = authToken == null ? null : authDAO.getAuth(authToken);
         if (authToken == null || authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");
         }
+        return auth;
     }
 }
