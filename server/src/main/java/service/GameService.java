@@ -27,6 +27,11 @@ public class GameService {
 
     }
 
+    public ListGamesResult listGames(ListGamesRequest request) throws UnauthorizedException, DataAccessException {
+        authorize(request.authToken());
+        return new ListGamesResult(gameDAO.listGames());
+    }
+
     private void authorize(String authToken) throws UnauthorizedException, DataAccessException {
         if (authToken == null || authDAO.getAuth(authToken) == null) {
             throw new UnauthorizedException("Error: unauthorized");

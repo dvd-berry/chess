@@ -34,6 +34,7 @@ public class Server {
         javalin.post("/session", this::login);
         javalin.delete("/session", this::logout);
         javalin.post("/game", this::createGame);
+        javalin.get("/game", this::listGames);
 
         javalin.exception(BadRequestException.class, (e, ctx) -> sendError(ctx, 400, e.getMessage()));
         javalin.exception(AlreadyTakenException.class, (e, ctx) -> sendError(ctx, 403, e.getMessage()));
@@ -75,6 +76,14 @@ public class Server {
         String gameName = (bodyRequest == null) ? null : bodyRequest.gameName();
 
         CreateGameResult result = gameService.createGame(new CreateGameRequest(authToken, gameName));
+        ctx.status(200);
+        ctx.result(gson.toJson(result));
+    }
+
+    private void listGames(Context ctx) throws Exception {
+        String authToken = ctx.header("authorization");
+        ListGamesResult result = gameService.listGames(new ListGamesRequest(authToken));
+
         ctx.status(200);
         ctx.result(gson.toJson(result));
     }
