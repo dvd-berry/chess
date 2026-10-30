@@ -52,7 +52,7 @@ public class Server {
 
     private void register(Context ctx) throws Exception {
         RegisterRequest request = gson.fromJson(ctx.body(), RegisterRequest.class);
-        RegisterResult result = userService.register(request);
+        RegisterResult result = userService.register(request); // enters next steps, all work traced through here
         ctx.status(200);
         ctx.result(gson.toJson(result));
     }
