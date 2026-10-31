@@ -59,8 +59,9 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> legal = new ArrayList<>();
-        if(piece == null)
+        if(piece == null) {
             return null;
+        }
 
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         for (ChessMove move : moves) {
@@ -109,12 +110,14 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition attackPos = new ChessPosition(i, j);
                 ChessPiece attackPiece = board.getPiece(attackPos);
-                if(attackPiece == null || attackPiece.getTeamColor() == teamColor)
+                if(attackPiece == null || attackPiece.getTeamColor() == teamColor) {
                     continue;
+                }
                 Collection<ChessMove> attackMoves = attackPiece.pieceMoves(board, attackPos);
                 for (ChessMove move : attackMoves) {
-                    if(move.getEndPosition().equals(kingPos))
+                    if(move.getEndPosition().equals(kingPos)) {
                         return true;
+                    }
                 }
             }
         }
@@ -130,8 +133,9 @@ public class ChessGame {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
-                if(piece == null || piece.getTeamColor() != color)
+                if(piece == null || piece.getTeamColor() != color) {
                     continue;
+                }
                 Collection<ChessMove> moves = validMoves(position);
                 if (!moves.isEmpty()) {
                     return false;

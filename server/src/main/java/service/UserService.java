@@ -6,6 +6,9 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import service.exception.AlreadyTakenException;
+import service.exception.BadRequestException;
+import service.exception.UnauthorizedException;
 
 import java.util.UUID;
 
@@ -57,8 +60,9 @@ public class UserService {
 
     public void logout(LogoutRequest request)
             throws UnauthorizedException, DataAccessException  {
-        if(request == null || request.authToken() == null || authDAO.getAuth(request.authToken()) == null)
+        if(request == null || request.authToken() == null || authDAO.getAuth(request.authToken()) == null) {
             throw new UnauthorizedException("Error: unauthorized");
+        }
 
         authDAO.deleteAuth(request.authToken());
     }

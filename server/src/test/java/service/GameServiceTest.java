@@ -4,6 +4,10 @@ import dataaccess.*;
 import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.exception.AlreadyTakenException;
+import service.exception.BadRequestException;
+import service.exception.UnauthorizedException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTest {

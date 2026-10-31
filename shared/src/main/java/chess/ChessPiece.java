@@ -1,11 +1,10 @@
 package chess;
 
+import chess.ChessGame.TeamColor;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-
-import chess.ChessGame.TeamColor;
-import chess.ChessPiece.PieceType;
 
 /**
  * Represents a single chess piece
@@ -60,7 +59,7 @@ public class ChessPiece {
         return type == PieceType.PAWN ? pawnMoves(board, myPosition) : majorPieceMoves(board, myPosition);
     }
 
-    private boolean isValidPosition(ChessBoard board, ChessPosition position) {
+    private boolean isValidPosition(ChessPosition position) {
         return position.getRow() >= 1 && position.getRow() <= 8 && position.getColumn() >=1 && position.getColumn() <= 8;
     }
     private boolean isValidIndex(int val) {
@@ -88,13 +87,15 @@ public class ChessPiece {
         };
     }
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moveList = new ArrayList<ChessMove>();
+        Collection<ChessMove> moveList = new ArrayList<>();
         int row = position.getRow();
         int col = position.getColumn();
         boolean isStartSquare = pieceColor == TeamColor.WHITE ? row == 2 : row == 7;
         boolean isPromotion = pieceColor == TeamColor.WHITE ? row == 7 : row == 2;
         int direction = pieceColor == TeamColor.WHITE ? 1 : -1;
-        PieceType[] promotionPieces = isPromotion ? new PieceType[]{PieceType.QUEEN, PieceType.KNIGHT, PieceType.ROOK, PieceType.BISHOP} : new PieceType[]{null};
+        PieceType[] promotionPieces = isPromotion ?
+                new PieceType[]{PieceType.QUEEN, PieceType.KNIGHT, PieceType.ROOK, PieceType.BISHOP} :
+                new PieceType[]{null};
 
         ChessPosition oneForward = new ChessPosition(row + direction, col);
         ChessPosition twoForward = new ChessPosition(row + direction*2, col);
@@ -105,15 +106,16 @@ public class ChessPiece {
             for (PieceType type : promotionPieces) {
                 moveList.add(new ChessMove(position, oneForward, type));
             }
-            if(isStartSquare && isEmptySquare(board, twoForward))
+            if(isStartSquare && isEmptySquare(board, twoForward)) {
                 moveList.add(new ChessMove(position, twoForward, null));
+            }
         }
-        if(isValidPosition(board, captureLeft) && isCapture(board, captureLeft)) {
+        if(isValidPosition(captureLeft) && isCapture(board, captureLeft)) {
             for (PieceType type : promotionPieces) {
                 moveList.add(new ChessMove(position, captureLeft, type));
             }
         }
-        if(isValidPosition(board, captureRight) && isCapture(board, captureRight)) {
+        if(isValidPosition(captureRight) && isCapture(board, captureRight)) {
             for (PieceType type : promotionPieces) {
                 moveList.add(new ChessMove(position, captureRight, type));
             }
@@ -122,7 +124,7 @@ public class ChessPiece {
         return moveList;
     }
     private Collection<ChessMove> majorPieceMoves(ChessBoard board, ChessPosition position) {
-        Collection<ChessMove> moveList = new ArrayList<ChessMove>();
+        Collection<ChessMove> moveList = new ArrayList<>();
         int row = position.getRow();
         int col = position.getColumn();
         int[][] directionVec = getVector();

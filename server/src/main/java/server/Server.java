@@ -11,6 +11,9 @@ import dataaccess.sql.SQLUserDAO;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import service.*;
+import service.exception.AlreadyTakenException;
+import service.exception.BadRequestException;
+import service.exception.UnauthorizedException;
 
 import java.util.Map;
 

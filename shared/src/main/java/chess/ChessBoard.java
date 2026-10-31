@@ -52,8 +52,9 @@ public class ChessBoard {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = getPiece(position);
-                if (piece != null && piece.getPieceType() == PieceType.KING && piece.getTeamColor() == color)
+                if (piece != null && piece.getPieceType() == PieceType.KING && piece.getTeamColor() == color) {
                     return position;
+                }
             }
         }
         throw new IllegalStateException("There is no king on the board");
