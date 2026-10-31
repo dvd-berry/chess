@@ -1,8 +1,13 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.*;
-import dataaccess.sql.*;
+import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import service.*;

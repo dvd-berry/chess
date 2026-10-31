@@ -1,10 +1,9 @@
 package dataaccess;
 
-import dataaccess.sql.*;
+import dataaccess.sql.SQLAuthDAO;
 import model.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 
 import static org.junit.jupiter.api.Assertions.*;
 

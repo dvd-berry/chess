@@ -6,7 +6,6 @@ import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import dataaccess.GameDAO;
 import model.GameData;
-import model.UserData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

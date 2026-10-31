@@ -1,6 +1,9 @@
 package service;
 
-import dataaccess.*;
+import dataaccess.AuthDAO;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryUserDAO;
+import dataaccess.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -80,7 +83,7 @@ public class UserServiceTest {
 
     @Test
     public void logoutInvalidToken() throws Exception {
-        RegisterResult result = userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
+        userService.register(new RegisterRequest("Link", "zelda<3", "link@triforce.com"));
 
         assertThrows(UnauthorizedException.class, () -> userService.logout(new LogoutRequest("Tingle-token")));
     }
