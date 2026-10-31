@@ -21,11 +21,12 @@ public class Server {
     public Server() {
         UserDAO userDAO;
         AuthDAO authDAO;
-        GameDAO gameDAO = new MemoryGameDAO();
+        GameDAO gameDAO;
 
         try {
             userDAO = new SQLUserDAO();
             authDAO = new SQLAuthDAO();
+            gameDAO = new SQLGameDAO();
         } catch (DataAccessException e) {
             throw new RuntimeException("unable to start database", e);
         }
