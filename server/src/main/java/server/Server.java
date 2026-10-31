@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import dataaccess.sql.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import service.*;
@@ -18,9 +19,16 @@ public class Server {
     private final GameService gameService;
 
     public Server() {
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+        UserDAO userDAO;
+        AuthDAO authDAO;
         GameDAO gameDAO = new MemoryGameDAO();
+
+        try {
+            userDAO = new SQLUserDAO();
+            authDAO = new SQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("unable to start database", e);
+        }
 
         clearService = new ClearService(userDAO, authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
